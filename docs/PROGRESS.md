@@ -29,24 +29,15 @@
 
 ## Şu An Üzerinde Çalışılan
 
-- Henüz kod entegrasyonuna başlanmadı — sıradaki adım budur.
+- Auth/login sayfası entegrasyonu tamamlandı; sonraki adım: gerçek kullanıcı testi ve tenant/rol akışı.
 
 ## Sıradaki Adım (Bir Sonraki Oturum Buradan Başlamalı)
 
-1. **İlk entegrasyon görevi — Auth/Login sayfası:**
-   - `design-reference/hope-ui-react/` içindeki Sign In sayfasını incele
-   - Aynı görsel/bileşen yapısını `apps/web/src/app/(tenant)/giris/` altına
-     Next.js App Router uyumlu şekilde taşı (React Router yerine Next.js
-     routing, `'use client'` gerekiyorsa ekle)
-   - Bootstrap 5 + Hope UI SCSS dosyalarını `apps/web` içine entegre et
-     (bkz. docs/DESIGN.md → "Entegrasyon Yaklaşımı")
-   - Supabase Auth ile gerçek giriş fonksiyonunu bağla (henüz sahte/mock
-     login değil, gerçek `users` tablosu + Supabase Auth)
-2. Giriş başarılı olunca `users.role` değerine göre doğru panele yönlendirme
-   mantığı (henüz panel sayfaları yok, şimdilik basit bir "hoş geldin" sayfası
-   yeterli — asıl panel içerikleri Faz 2'de gelecek)
+1. Gerçek Supabase kullanıcı testi yapmak: bir kullanıcı oluşturup giriş akışını
+   uçtan uca doğrulamak.
+2. `users.role` bazlı panel yönlendirme mantığını canlı veriye göre test etmek.
 3. Süper Admin'in ilk `tenant` kaydını SQL Editor üzerinden elle ekleyip
-   uçtan uca login testi yapılacak
+   uçtan uca login testi yapılacak.
 
 ## Alınan Kritik Kararlar (Değiştirilmeden Önce Tartışılmalı)
 
@@ -89,3 +80,4 @@
 | 2026-07-02 | Proje kapsamı, roller, akışlar konuşuldu. ARCHITECTURE.md, ROADMAP.md, PROGRESS.md, DATABASE_SCHEMA.md (taslak) oluşturuldu. | İlk beyin fırtınası oturumu |
 | 2026-07-03 (sabah) | GitHub repo kuruldu, Next.js iskeleti oluşturuldu, Supabase projesi kuruldu, DATABASE_SCHEMA.md v1 tamamlandı, migration yazıldı ve çalıştırıldı. | Altyapı kurulum oturumu |
 | 2026-07-03 (öğleden sonra) | UI kararı Tailwind/shadcn'den Bootstrap5/Hope UI'a değiştirildi (kullanıcının "birebir" template isteği üzerine). DESIGN.md ve ARCHITECTURE.md güncellendi. Hope UI React reposu referans olarak klonlandı. | Tasarım sistemi kararı oturumu |
+| 2026-07-03 | `apps/web` üzerinde Bootstrap 5 + Hope UI benzeri giriş ekranı kuruldu; `/giris` sayfası, Supabase Auth login formu, rol bazlı yönlendirme ve hoş geldin sayfaları eklendi; Next.js build başarıyla doğrulandı. | İlk auth/login entegrasyonu |
