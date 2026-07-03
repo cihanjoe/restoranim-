@@ -6,78 +6,96 @@
 
 ## Genel Durum
 
-- **Proje aşaması:** Temel altyapı kurulumu (Faz 0) — UI kaynağı netleşti,
-  ilk gerçek arayüz kodlamasına geçiliyor.
+- **Proje aşaması:** Faz 0 tamamlanmak üzere — auth akışı uçtan uca çalışıyor,
+  sırada Süper Admin dashboard iskeleti var (Faz 1'e geçiş).
 - **Son güncelleme:** 2026-07-03
-- **Aktif faz:** Faz 0 — Temel Kurulum (bkz. ROADMAP.md)
+- **Aktif faz:** Faz 0 bitiyor → Faz 1 başlıyor (bkz. ROADMAP.md)
 
 ## Tamamlanan Modüller
 
 - [x] Monorepo iskeleti (`apps/web` — Next.js + TypeScript)
-- [x] GitHub reposu (private) kuruldu, `main` branch'e push ediliyor
-- [x] Supabase projesi oluşturuldu (`restoranim`, region: Central EU/Frankfurt)
+- [x] GitHub reposu (private), Supabase projesi (Frankfurt) kuruldu
 - [x] Supabase client kurulumu (`@supabase/supabase-js`, `@supabase/ssr`)
-- [x] `docs/DATABASE_SCHEMA.md` v1 tamamlandı — 20 tablo tasarlandı
-- [x] İlk migration (`supabase/migrations/0001_init_schema.sql`) Supabase'de
-      başarıyla çalıştırıldı — tüm tablolar + temel RLS politikaları canlıda
-- [x] **UI/tasarım kararı değişti:** Tailwind+shadcn yerine **Bootstrap 5 +
-      Hope UI** (github.com/iqonicdesignofficial/hope-ui-react-dashboard,
-      MIT lisans) — birebir kullanılacak. `docs/DESIGN.md` bu karara göre
-      yeniden yazıldı, `docs/ARCHITECTURE.md` güncellendi.
-- [x] Hope UI React reposu `design-reference/hope-ui-react/` altına
-      klonlandı (referans kaynak, `.gitignore`'da — GitHub'a gitmiyor)
+- [x] `docs/DATABASE_SCHEMA.md` v1 — 20 tablo
+- [x] Migration 0001 — tüm tablolar + RLS politikaları
+- [x] Migration 0002 — RLS yardımcı fonksiyonları (`current_tenant_id()`,
+      `is_super_admin()`) SECURITY DEFINER yapıldı (sonsuz döngü hatasını
+      düzeltti)
+- [x] Migration 0003 — `authenticated` rolüne temel GRANT (SELECT/INSERT/
+      UPDATE/DELETE) verildi — **önemli ders:** RLS politikaları yeterli
+      değil, temel GRANT de şart, yoksa "permission denied" hatası alınıyor
+- [x] UI kararı: Tailwind+shadcn yerine **Bootstrap 5 + Hope UI**
+      (design-reference/hope-ui-react — MIT lisans)
+- [x] Tailwind tamamen projeden temizlendi (package.json, postcss config,
+      globals.css) — artık sadece Bootstrap + Sass kullanılıyor
+- [x] **Giriş (Auth) akışı uçtan uca çalışıyor:**
+      `/giris` sayfası → Supabase Auth (`signInWithPassword`) → `users`
+      tablosundan role okunuyor → role'e göre yönlendirme (şu an sadece
+      `super_admin` için basit bir placeholder karşılama sayfası var)
+- [x] Giriş ekranına Hope UI'ın gerçek SCSS renk paleti uygulandı
+      (`hope-ui-theme.scss`, `_variable.scss` referans alınarak)
+- [x] İlk test kullanıcısı oluşturuldu (Supabase Auth + `users` tablosu,
+      rol: `super_admin`)
 
 ## Şu An Üzerinde Çalışılan
 
-- Auth/login sayfası entegrasyonu tamamlandı; sonraki adım: gerçek kullanıcı testi ve tenant/rol akışı.
+- Henüz başlanmadı — sıradaki adım aşağıda.
 
 ## Sıradaki Adım (Bir Sonraki Oturum Buradan Başlamalı)
 
-1. Gerçek Supabase kullanıcı testi yapmak: bir kullanıcı oluşturup giriş akışını
-   uçtan uca doğrulamak.
-2. `users.role` bazlı panel yönlendirme mantığını canlı veriye göre test etmek.
-3. Süper Admin'in ilk `tenant` kaydını SQL Editor üzerinden elle ekleyip
-   uçtan uca login testi yapılacak.
+1. **Süper Admin dashboard iskeleti (gerçek Hope UI layout ile):**
+   - Şu anki placeholder "Süper Admin paneline hoş geldiniz" sayfasının
+     yerine, `design-reference/hope-ui-react` içindeki gerçek Dashboard
+     sayfasını (sidebar + topbar + kart düzeni) birebir uyarla
+   - Sidebar menü öğeleri (bu aşamada sadece iskelet/linkler, içerik boş
+     olabilir): Firmalar, Abonelikler, Destek Talepleri, Ayarlar
+   - `docs/DESIGN.md` → "Kullanılacak Hazır Hope UI Bileşenleri" tablosuna
+     göre ilerlenecek
+2. Firma Admin, Bölge Müdürü, Restoran Müdürü için de aynı Hope UI
+   layout iskeletiyle (farklı sidebar menüleriyle) boş placeholder sayfalar
+   oluşturulacak — böylece her rolün girişten sonra doğru panele
+   yönlendiği uçtan uca test edilebilir
+3. Süper Admin panelinden ilk gerçek `tenant` (firma) kaydını **arayüzden**
+   oluşturma formu (Faz 1, ROADMAP.md) — şu ana kadar tenant kaydı hiç
+   oluşturulmadı, sadece `users` tablosuna `tenant_id = null` ile
+   süper admin eklendi
 
 ## Alınan Kritik Kararlar (Değiştirilmeden Önce Tartışılmalı)
 
-- Tek veritabanı + `tenant_id` + Row Level Security modeli benimsendi.
+- Tek veritabanı + `tenant_id` + Row Level Security modeli.
 - Web: Next.js + Vercel. Mobil: React Native + Expo. DB: Supabase.
-- **UI: Bootstrap 5 + Hope UI (React versiyonu) — birebir kullanılacak,
-  Tailwind/shadcn kararı iptal edildi.** Detay: docs/DESIGN.md
+- **UI: Bootstrap 5 + Hope UI (React versiyonu) — birebir kullanılacak.**
+  Detay: docs/DESIGN.md
+- **RLS kurulum kuralı (yeni tablo eklerken unutulmamalı):** Her yeni
+  tabloda hem RLS POLICY hem `GRANT ... TO authenticated` gerekli. Migration
+  0003 tüm mevcut + gelecekteki tablolar için `ALTER DEFAULT PRIVILEGES`
+  ile bunu otomatikleştirdi, ama yeni bir rol/şema eklenirse tekrar
+  gözden geçirilmeli.
 - Aksiyon maddeleri OTOMATİK oluşmaz — bölge müdürü manuel "Aksiyona Ekle"
   tikiyle işaretler.
-- Personel kartındaki alanlar dinamik (Firma Admin tanımlar) — aynı motor
-  `metric_definitions` için de (ciro, tabak sayısı, hijyen skoru) kullanılıyor.
-- RLS politikaları `current_tenant_id()` ve `is_super_admin()` SQL
-  fonksiyonları üzerinden çalışıyor (users tablosuna auth.uid() join).
-- İnce taneli rol bazlı erişim (bölge müdürü → sadece atanan restoran)
-  henüz RLS'e yansıtılmadı — Faz 2'de detaylandırılacak.
-- Finansal veri girişi: manuel + POS API (`metric_definitions.input_mode`).
-- Google puanı entegrasyonu faz 2'de değerlendirilecek. Diğer platformlar
-  MVP'de manuel giriş.
-- SMS bildirimi altyapısı hazır olacak ama varsayılan pasif.
+- Personel/metrik alanları dinamik (Firma Admin tanımlar).
+- Finansal veri girişi: manuel + POS API.
+- Google puanı entegrasyonu faz 2'de değerlendirilecek.
+- SMS altyapısı hazır olacak, varsayılan pasif.
 - Dil: Sadece Türkçe.
-- Geliştirme aracı: Codex (OpenAI) — proje kökünde `AGENTS.md` kullanılıyor.
-- Proje yerel yolu: `D:\restoranim` (OneDrive'dan kaçınıldı).
+- Geliştirme aracı: Codex (OpenAI), `AGENTS.md` kök dizinde.
+- Proje yerel yolu: `D:\restoranim`.
 
 ## Bilinen Açık Sorular (Henüz Karar Verilmedi)
 
 - Abonelik/fiyatlandırma modeli netleşmedi.
-- E-posta sağlayıcısı netleşmedi (Resend vs alternatif).
+- E-posta sağlayıcısı netleşmedi.
 - PDF şablon özelleştirme kapsamı detaylandırılmadı.
-- RLS'in ince taneli hali yazılmadı.
-- Hope UI menü stillerinden hangisi kullanılacak — "Simple" menü öneriliyor
-  ama kesinleşmedi.
+- RLS'in ince taneli hali (bölge müdürü → sadece atanan restoran) yazılmadı.
+- Hope UI menü stillerinden hangisi kullanılacak ("Simple" öneriliyor).
 - Firma bazlı marka rengi özelleştirmesinin Hope UI'ın statik SCSS
-  derlemesiyle nasıl dinamik hale getirileceği netleşmedi (Faz 2/3'te
-  çözülecek).
+  derlemesiyle nasıl dinamikleştirileceği netleşmedi.
 
 ## Session Log
 
 | Tarih | Yapılan | Not |
 |---|---|---|
-| 2026-07-02 | Proje kapsamı, roller, akışlar konuşuldu. ARCHITECTURE.md, ROADMAP.md, PROGRESS.md, DATABASE_SCHEMA.md (taslak) oluşturuldu. | İlk beyin fırtınası oturumu |
-| 2026-07-03 (sabah) | GitHub repo kuruldu, Next.js iskeleti oluşturuldu, Supabase projesi kuruldu, DATABASE_SCHEMA.md v1 tamamlandı, migration yazıldı ve çalıştırıldı. | Altyapı kurulum oturumu |
-| 2026-07-03 (öğleden sonra) | UI kararı Tailwind/shadcn'den Bootstrap5/Hope UI'a değiştirildi (kullanıcının "birebir" template isteği üzerine). DESIGN.md ve ARCHITECTURE.md güncellendi. Hope UI React reposu referans olarak klonlandı. | Tasarım sistemi kararı oturumu |
-| 2026-07-03 | `apps/web` üzerinde Bootstrap 5 + Hope UI benzeri giriş ekranı kuruldu; `/giris` sayfası, Supabase Auth login formu, rol bazlı yönlendirme ve hoş geldin sayfaları eklendi; Next.js build başarıyla doğrulandı. | İlk auth/login entegrasyonu |
+| 2026-07-02 | Kapsam/roller/akışlar konuşuldu, ilk 4 docs dosyası oluşturuldu. | Beyin fırtınası |
+| 2026-07-03 (sabah) | GitHub repo, Next.js iskeleti, Supabase projesi, DATABASE_SCHEMA v1, migration 0001. | Altyapı kurulumu |
+| 2026-07-03 (öğleden sonra) | UI kararı Bootstrap5/Hope UI'a değişti, DESIGN.md yeniden yazıldı. | Tasarım kararı |
+| 2026-07-03 (akşam) | Codex ile giriş sayfası entegre edildi (Hope UI + Bootstrap). RLS sonsuz döngü (migration 0002) ve eksik GRANT (migration 0003) hataları bulunup düzeltildi. Tailwind kalıntıları temizlendi. Giriş akışı uçtan uca test edildi ve çalışıyor (Süper Admin placeholder sayfasına yönlendirme başarılı). | İlk çalışan özellik — auth akışı |
