@@ -1,9 +1,11 @@
+@import './hope-ui-theme.scss';
+
 :root {
-  --bs-primary: #4f46e5;
-  --bs-primary-rgb: 79, 70, 229;
-  --bs-secondary: #64748b;
-  --bs-body-bg: #f5f7fb;
-  --bs-body-color: #0f172a;
+  --bs-primary: var(--hope-ui-primary);
+  --bs-primary-rgb: 58, 87, 232;
+  --bs-secondary: var(--hope-ui-secondary);
+  --bs-body-bg: var(--hope-ui-body-bg);
+  --bs-body-color: var(--hope-ui-body-color);
 }
 
 body {
@@ -12,11 +14,11 @@ body {
 }
 
 .card {
-  border-color: rgba(15, 23, 42, 0.06);
+  border-color: rgba(33, 37, 41, 0.06);
 }
 
 .form-control:focus {
-  box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.12);
+  box-shadow: 0 0 0 0.2rem rgba(58, 87, 232, 0.16);
   border-color: var(--bs-primary);
 }
 
@@ -26,6 +28,6 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: #4338ca;
-  border-color: #4338ca;
+  background-color: #2f47c4;
+  border-color: #2f47c4;
 }
