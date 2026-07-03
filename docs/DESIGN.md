@@ -97,6 +97,97 @@ Hope UI'ın kendi sidebar + topbar + content düzeni birebir korunur:
 - Yeni bir üçüncü taraf bileşen kütüphanesi eklemek (Hope UI zaten
   kapsamlı, gerek yoksa başka kütüphane eklenmez).
 
+## Hope UI — Tam Kapsam Kontrol Listesi
+
+> Kullanıcının talebi: Hope UI'ın sunduğu HER özellik/sayfa/bileşen
+> birebir kullanılacak, seçmeci davranılmayacak. Bu yüzden entegrasyon
+> tek seferde değil, **önce bileşen kütüphanesi, sonra gerçek ekranlar**
+> stratejisiyle yapılır (bkz. "Entegrasyon Stratejisi" altında).
+
+Hope UI'ın canlı demosundaki (templates.iqonic.design/hope-ui/html/dist/)
+menüye göre tam envanter:
+
+**Dashboard Varyantları**
+- [ ] Default Dashboard
+- [ ] Admin Dashboard
+- [ ] App Dashboard
+
+**Menü Stilleri**
+- [ ] Horizontal
+- [ ] Dual Horizontal
+- [ ] Dual Compact
+- [ ] Boxed Horizontal
+- [ ] Boxed Fancy
+- [ ] (Proje için hangisi kullanılacak: Faz 2'de tek bir stil seçilip
+  sabitlenecek — hepsini aynı anda sunmuyoruz, kullanıcı deneyimi için
+  tek tutarlı stil gerekir)
+
+**Özel Sayfalar (Special Pages)**
+- [ ] Billing (Faturalama — Süper Admin abonelik ekranında kullanılabilir)
+- [ ] Calendar (ODZ ziyaret takvimi için uyarlanabilir)
+- [ ] Kanban (Aksiyon takip panosu görünümü için — ROADMAP'te not edilmişti)
+- [ ] Pricing (Süper Admin'in paket/plan tanıtım sayfası için)
+- [ ] Timeline (Restoran ziyaret geçmişi/aksiyon geçmişi için ideal)
+- [ ] RTL Support (bu proje için gerekmez, Türkçe soldan sağa)
+
+**Authentication**
+- [ ] Login / Sign In (✅ tamamlandı)
+- [ ] Register / Sign Up (firma admin'in yeni bölge müdürü daveti için
+  benzer form kullanılabilir)
+- [ ] Confirm Mail
+- [ ] Lock Screen
+- [ ] Recover Password (şifremi unuttum akışı için gerekli)
+
+**Users**
+- [ ] User Profile (tüm roller için profil sayfası)
+- [ ] Add User (personel/bölge müdürü ekleme formlarına temel oluşturur)
+- [ ] User List (restoran/personel/bölge müdürü listeleri için)
+
+**Utilities**
+- [ ] Error 404
+- [ ] Error 500
+- [ ] Maintenance (bakım modu sayfası — ileride faydalı olabilir)
+
+**Elements / Components**
+- [ ] Genel component kütüphanesi (accordion, modal, tab, tooltip vb.)
+- [ ] Widget — Basic (istatistik kartları, mini progress göstergeleri)
+- [ ] Widget — Chart (ApexCharts kart varyasyonları)
+- [ ] Widget — Card (çeşitli kart düzenleri)
+- [ ] Maps — Google
+- [ ] Maps — Vector
+- [ ] Form — Elements (tüm input tipleri)
+- [ ] Form — Wizard (çok adımlı form — ODZ ziyaret formu için ideal!)
+- [ ] Form — Validation
+- [ ] Table — Bootstrap Table
+- [ ] Table — Datatable (arama/sıralama/sayfalama özellikli — restoran/
+  personel listeleri için)
+- [ ] Icons — Solid / Outlined / Dual Tone
+
+**Tema Özelleştirici (Theme Customizer)**
+- [ ] Scheme (Auto/Dark/Light) — ileride "dark mode" isteği gelirse hazır
+- [ ] Sidebar Color/Type (Default/Dark/Color/Transparent, Mini/Hover/Boxed)
+- [ ] Sidebar Active Style
+- [ ] Navbar Style (Glass/Sticky/Transparent/Default)
+- [ ] Bu özelleştirici, gelecekte "her firma kendi temasını seçsin"
+  isteğiyle birebir örtüşüyor — tenant ayarları ekranı için doğrudan
+  ilham/temel olarak kullanılabilir
+
+## Entegrasyon Stratejisi (Tek Seferde Değil, Katmanlı)
+
+1. **Katman 1 — Bileşen Kütüphanesi (öncelik):** Yukarıdaki Elements/
+   Components/Widget/Form/Table/Icons bölümleri, apps/web içinde
+   `src/components/hope-ui/` altında YENİDEN KULLANILABİLİR bileşenler
+   olarak bir kere inşa edilir. Bu bir "iç Storybook" gibi düşünülmeli —
+   her sayfa ihtiyaç duydukça buradan bileşen çeker, sıfırdan yazmaz.
+2. **Katman 2 — Gerçek Uygulama Ekranları:** ROADMAP.md'deki fazlara göre
+   (Süper Admin dashboard, Firma Admin, ODZ form builder vb.) bu
+   bileşenler kullanılarak gerçek ekranlar inşa edilir.
+3. **Katman 3 — Özel Sayfalar (ihtiyaç oldukça):** Kanban (aksiyon
+   panosu), Timeline (ziyaret geçmişi), Form Wizard (ODZ ziyaret akışı)
+   gibi özel sayfalar ilgili modül geliştirilirken (Faz 5+) devreye girer.
+4. Bu liste `docs/PROGRESS.md`'de checkbox olarak takip edilir, her
+   oturumda hangi bölümün tamamlandığı işaretlenir.
+
 ## Mobil Uygulama Notu
 
 Hope UI web'e özel bir şablon (Bootstrap tabanlı, React Native'de

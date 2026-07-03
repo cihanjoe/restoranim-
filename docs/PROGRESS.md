@@ -39,26 +39,20 @@
 
 ## Şu An Üzerinde Çalışılan
 
-- Henüz başlanmadı — sıradaki adım aşağıda.
+- Süper Admin dashboard zengin layout olarak tamamlandı; sonraki adım: diğer roller için aynı layout iskeletini çoğaltmak.
 
 ## Sıradaki Adım (Bir Sonraki Oturum Buradan Başlamalı)
 
-1. **Süper Admin dashboard iskeleti (gerçek Hope UI layout ile):**
-   - Şu anki placeholder "Süper Admin paneline hoş geldiniz" sayfasının
-     yerine, `design-reference/hope-ui-react` içindeki gerçek Dashboard
-     sayfasını (sidebar + topbar + kart düzeni) birebir uyarla
-   - Sidebar menü öğeleri (bu aşamada sadece iskelet/linkler, içerik boş
-     olabilir): Firmalar, Abonelikler, Destek Talepleri, Ayarlar
-   - `docs/DESIGN.md` → "Kullanılacak Hazır Hope UI Bileşenleri" tablosuna
-     göre ilerlenecek
-2. Firma Admin, Bölge Müdürü, Restoran Müdürü için de aynı Hope UI
-   layout iskeletiyle (farklı sidebar menüleriyle) boş placeholder sayfalar
-   oluşturulacak — böylece her rolün girişten sonra doğru panele
-   yönlendiği uçtan uca test edilebilir
-3. Süper Admin panelinden ilk gerçek `tenant` (firma) kaydını **arayüzden**
+1. Firma Admin, Bölge Müdürü ve Restoran Müdürü için benzer Hope UI
+   layout iskeletleri oluşturulacak (farklı sidebar menüleriyle), böylece
+   her rolün girişten sonra doğru panele yönlendiği uçtan uca test edilebilir
+2. Süper Admin panelinden ilk gerçek `tenant` (firma) kaydını **arayüzden**
    oluşturma formu (Faz 1, ROADMAP.md) — şu ana kadar tenant kaydı hiç
    oluşturulmadı, sadece `users` tablosuna `tenant_id = null` ile
    süper admin eklendi
+3. Dashboard içeriklerini gerçek Supabase verilerine bağlamak (firmalar,
+   abonelikler, destek talepleri) — şu an çoğunlukla statik/mock veri ile
+   çalışan bir arayüz görünümündedir
 
 ## Alınan Kritik Kararlar (Değiştirilmeden Önce Tartışılmalı)
 
@@ -99,3 +93,5 @@
 | 2026-07-03 (sabah) | GitHub repo, Next.js iskeleti, Supabase projesi, DATABASE_SCHEMA v1, migration 0001. | Altyapı kurulumu |
 | 2026-07-03 (öğleden sonra) | UI kararı Bootstrap5/Hope UI'a değişti, DESIGN.md yeniden yazıldı. | Tasarım kararı |
 | 2026-07-03 (akşam) | Codex ile giriş sayfası entegre edildi (Hope UI + Bootstrap). RLS sonsuz döngü (migration 0002) ve eksik GRANT (migration 0003) hataları bulunup düzeltildi. Tailwind kalıntıları temizlendi. Giriş akışı uçtan uca test edildi ve çalışıyor (Süper Admin placeholder sayfasına yönlendirme başarılı). | İlk çalışan özellik — auth akışı |
+| 2026-07-03 | Süper Admin dashboard iskeleti eklendi: sidebar + topbar + kart düzeni + chart widget + hızlı erişim blokları içeren Hope UI benzeri layout `/super-admin/hos-geldin` sayfasına bağlandı. `react-icons`, `apexcharts`, `react-apexcharts` paketleri eklendi. | İlk dashboard iskeleti |
+| 2026-07-03 | Dashboard bileşeni `apps/web/src/components/dashboard/super-admin-dashboard.tsx` dosyasına taşındı; statik/placeholder metrikler ve işlem listesi ile zenginleştirildi. Supabase verisi henüz bağlanmadı, tüm içerik hâlâ sahte/mock verilerden oluşuyor. | Dashboard görsel entegrasyonu |
