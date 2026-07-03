@@ -34,7 +34,7 @@ yönetim paneline erişir.
 | Katman | Teknoloji | Not |
 |---|---|---|
 | Web Frontend | Next.js 14+ (App Router), TypeScript | Vercel'de host edilecek |
-| Stil | Tailwind CSS + shadcn/ui | Tutarlı component seti |
+| Stil/UI Kiti | Bootstrap 5 + SCSS (Hope UI tasarım sistemi) | Kaynak: github.com/iqonicdesignofficial/hope-ui-react-dashboard (MIT lisans, React versiyonu). Next.js'e uyarlanarak entegre edilir — bkz. docs/DESIGN.md |
 | Mobil | React Native + Expo | iOS + Android tek kod tabanı |
 | Backend/DB | Supabase (PostgreSQL) | Auth, Storage, Realtime, Edge Functions dahil |
 | Kimlik Doğrulama | Supabase Auth | Rol bilgisi custom claim/tablo ile tutulacak |
