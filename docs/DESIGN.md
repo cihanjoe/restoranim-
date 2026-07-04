@@ -150,7 +150,7 @@ menüye göre tam envanter:
 
 **Elements / Components**
 - [ ] Genel component kütüphanesi (accordion, modal, tab, tooltip vb.)
-- [ ] Widget — Basic (istatistik kartları, mini progress göstergeleri)
+- [x] Widget — Basic (istatistik kartları, mini progress göstergeleri)
 - [ ] Widget — Chart (ApexCharts kart varyasyonları)
 - [ ] Widget — Card (çeşitli kart düzenleri)
 - [ ] Maps — Google

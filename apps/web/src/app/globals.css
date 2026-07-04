@@ -1,18 +1,100 @@
 :root {
-  color-scheme: light;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  min-height: 100%;
+  --background: #ffffff;
+  --foreground: #171717;
+  --bs-primary: #3a57e8;
+  --bs-info: #079aa2;
+  --bs-success: #1aa053;
+  --bs-warning: #f16a1b;
+  --bs-danger: #c03221;
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.hope-dashboard {
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+.hope-widget-card {
+  border: 0;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 30px rgba(17, 38, 146, 0.05);
+}
+
+.hope-widget-card .card-body {
+  padding: 1.5rem;
+}
+
+.counter {
+  color: #232d42;
+  font-weight: 500;
+}
+
+.hope-progress {
+  height: 6px;
+}
+
+.bg-soft-primary {
+  background-color: rgba(58, 87, 232, 0.1) !important;
+}
+
+.bg-soft-info {
+  background-color: rgba(7, 154, 162, 0.1) !important;
+}
+
+.bg-soft-success {
+  background-color: rgba(26, 160, 83, 0.1) !important;
+}
+
+.bg-soft-warning {
+  background-color: rgba(241, 106, 27, 0.1) !important;
+}
+
+.bg-soft-danger {
+  background-color: rgba(192, 50, 33, 0.1) !important;
+}
+
+.hope-circular-progress {
+  display: grid;
+  flex: 0 0 108px;
+  height: 108px;
+  place-items: center;
+  position: relative;
+  width: 108px;
+}
+
+.hope-circular-progress svg {
+  height: 108px;
+  transform: rotate(-90deg);
+  width: 108px;
+}
+
+.hope-circular-track,
+.hope-circular-value {
+  fill: none;
+  stroke-width: 8;
+}
+
+.hope-circular-track {
+  stroke: rgba(35, 45, 66, 0.08);
+}
+
+.hope-circular-value {
+  stroke: currentColor;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.hope-circular-progress strong {
+  color: #232d42;
+  font-size: 1.1rem;
+  position: absolute;
+}
+
+.hope-sparkline {
+  margin-bottom: -0.75rem;
 }
