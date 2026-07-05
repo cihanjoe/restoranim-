@@ -105,7 +105,7 @@ export function SuperAdminDashboard() {
             </button>
             <div className="d-flex align-items-center gap-2">
               <div className="text-end">
-                <div className="fw-semibold text-dark">Ahmet Yılmaz</div>
+                <div className="fw-semibold text-dark">Cihan KARAYAZILI</div>
                 <div className="small text-muted">Süper Admin</div>
               </div>
               <div
