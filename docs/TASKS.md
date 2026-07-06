@@ -1,5 +1,69 @@
 # TASKS.md — Detaylı Uygulama Görev Listesi
 
+## ⚠️ ZORUNLU KURAL — HER GÖREV İÇİN GEÇERLİ (ATLANAMAZ)
+
+Bir görev, sadece Hope UI görünümü doğru olduğu için TAMAMLANMIŞ
+sayılmaz. Aşağıdaki dört şart sağlanmadan görev YARIM'dır, ✅ işareti
+KONULMAZ:
+
+1. **EKLE çalışıyor** — Sayfadaki "Ekle/Yeni" formu doldurulup
+   gönderildiğinde, ilgili Supabase tablosuna GERÇEKTEN yeni bir satır
+   ekleniyor. (Test: Supabase Table Editor'de yeni satırı gör.)
+
+2. **GÖRÜNTÜLE çalışıyor** — Sayfa açıldığında, ilgili Supabase
+   tablosundaki GERÇEK veriler listeleniyor (sabit/örnek/hardcoded
+   veri DEĞİL). (Test: Supabase'de bir satır ekle/sil, sayfayı
+   yenile, listenin değiştiğini gör.)
+
+3. **DÜZENLE çalışıyor** — Bir satıra tıklayıp bilgilerini
+   değiştirdiğinde, Supabase'deki ilgili satır GERÇEKTEN güncelleniyor.
+   (Test: Değişikliği kaydet, sayfayı yenile, değişikliğin kalıcı
+   olduğunu gör.)
+
+4. **SİL çalışıyor** (silme özelliği olan sayfalarda) — Bir satırı
+   sildiğinde, Supabase'deki ilgili satır GERÇEKTEN siliniyor.
+   (Test: Sil, Supabase Table Editor'de satırın gittiğini gör.)
+
+**Bu şartlardan biri bile eksikse:**
+- Görevi ✅ olarak işaretleme
+- docs/PROGRESS.md'ye "TAMAMLANMADI — sadece görsel, Supabase bağlantısı
+  eksik: [hangi kısım eksik]" diye not düş
+- Kullanıcıya "bu sayfa şu an sadece tasarım, veri bağlantısı henüz
+  yapılmadı" diye açıkça söyle — "tamamlandı" deme
+
+**Kabul testi formatı (her görevin sonunda bunu çalıştır):**
+1. Sayfayı aç → gerçek veri görünüyor mu?
+2. Yeni kayıt ekle → Supabase'de görünüyor mu?
+3. Var olan kaydı düzenle → Supabase'de güncelleniyor mu?
+4. (Varsa) Kaydı sil → Supabase'den siliniyor mu?
+
+Bu dört adımdan biri başarısızsa, görev bitmemiştir, düzeltilmesi
+gerekir — "tasarım güzel oldu ama veri bağlı değil" bir sonraki adıma
+ERTELENEMEZ, aynı görevin İÇİNDE çözülmesi gerekir.
+
+### Ek Kural — Grafikler, İstatistikler ve Özet Kartları
+
+Yukarıdaki 4 madde (Ekle/Görüntüle/Düzenle/Sil) sadece form/liste
+sayfaları için değil, PROJEDEKİ HER SAYI/GRAFİK/İSTATİSTİK için de
+geçerlidir. Bu şu anlama gelir:
+
+- Dashboard'daki özet kartlarındaki HER sayı (örn. "Aktif Firmalar: 12",
+  "Toplam Restoran: 184", "Aylık Gelir: ₺86.4K") gerçek bir Supabase
+  sorgusunun (COUNT, SUM, AVG vb.) sonucu olmalı — asla sabit/örnek
+  rakam yazılmamalı.
+- HER grafik (çizgi grafik, dairesel progress, trend grafiği) gerçek
+  veritabanı verisinden hesaplanmalı — örnek/rastgele veri dizisi
+  YASAK. Eğer o an yeterli gerçek veri yoksa (örn. proje yeni
+  başladığı için sadece 1-2 kayıt var), grafik BOŞ veya "Henüz yeterli
+  veri yok" mesajı göstermeli — ASLA uydurma sayı göstermemeli.
+- "Bu ay +3 firma", "%68", "+8.2%" gibi her karşılaştırma/yüzde de
+  gerçek hesaplamadan gelmeli (örn. bu ayki kayıt sayısı - geçen ayki
+  kayıt sayısı), sabit yazılmamalı.
+
+**Kabul testi:** Supabase'de test verisi ekle/sil, dashboard'ı yenile,
+İLGİLİ sayı/grafiğin değiştiğini gör. Değişmiyorsa o widget hâlâ
+sahte/sabit veridir, görev tamamlanmamıştır.
+
 > KULLANIM: "docs/TASKS.md dosyasındaki Görev N'yi uygula" de. Model
 > ARAMA yapmayacak, aşağıda verilen tam dosya yollarını kullanacak.
 > Her görev bağımsız çalıştırılabilir ama SIRAYLA yapılması önerilir

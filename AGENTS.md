@@ -30,6 +30,18 @@ Mobil: React Native + Expo. Monorepo yapısı `docs/ARCHITECTURE.md` içinde tan
 `apps/mobile/AGENTS.md` — sadece mobil kodla çalışırken devreye girer,
 Expo/React Native'e özel kurallar için kullanılabilir.
 
+## PowerShell Komut Kuralı (KRİTİK)
+
+Bu sistemde PowerShell'de `&&` ile komut zincirleme ÇALIŞMAZ. Birden
+fazla komutu art arda çalıştırman gerektiğinde, ASLA `&&` kullanma.
+Bunun yerine:
+
+- Ayrı komutlar olarak, alt alta çalıştır (her biri ayrı bir tool call)
+- VEYA noktalı virgül kullan: `cd apps/web; npm run build`
+
+Yanlış: `cd apps/web && npm run build`
+Doğru:  `cd apps/web; npm run build`
+
 KRİTİK KURAL: npm install, npm init, npm run gibi komutları SADECE
 apps/web/ klasörünün İÇİNDEYKEN çalıştır. Proje kökünde (D:\restoranim)
 ASLA npm komutu çalıştırma, ASLA package.json oluşturma. Her komuttan
