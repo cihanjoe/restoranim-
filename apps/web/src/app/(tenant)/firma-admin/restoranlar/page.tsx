@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useUser } from "@/lib/hooks/useUser";
-import { createRestoran, updateRestoran } from "@/lib/actions/restoran-actions";
+import { createRestoran, updateRestoran, deleteRestaurants } from "@/lib/actions/restoran-actions";
+import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { FiPlus, FiEdit2, FiPhone } from "react-icons/fi";
+import { FiEdit2, FiPhone, FiPlus, FiSearch, FiTrash2 } from "react-icons/fi";
+import { showDeleteConfirm } from "@/lib/actions/swal";
 
 const ILER = [
   "İstanbul", "Ankara", "İzmir", "Bursa", "Antalya", "Adana", "Konya",
@@ -99,31 +100,8 @@ export default function RestoranlarPage() {
   const [form, setForm] = useState<RestaurantForm>({ ...defaultForm });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-
-  const fetchRestaurants = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("restaurants")
-      .select("*")
-      .eq("tenant_id", user?.tenant_id);
-    if (error) {
-      setMessage("Hata: " + error.message);
-    } else if (data) {
-      setRestaurants(data as Restaurant[]);
-    }
-    setLoading(false);
-  };
-
-  const fetchBolgeMudurleri = async () => {
-    const { data, error } = await supabase
-      .from("users")
-      .select("id, full_name")
-      .eq("role", "bolge_muduru")
-      .eq("tenant_id", user?.tenant_id);
-    if (!error && data) {
-      setBolgeMudurleri(data as unknown as BolgeMudur[]);
-    }
-  };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRestaurants, setSelectedRestaurants] = useState<string[]>([]);
 
   const openAdd = () => {
     setEditRestaurant(null);
@@ -132,8 +110,23 @@ export default function RestoranlarPage() {
     setShowModal(true);
   };
 
-  const openEdit = (r: Restaurant) => {
+  const openEdit = async (r: Restaurant) => {
     setEditRestaurant(r);
+    setMessage("");
+
+    // Atanmış bölge müdürlerini çek
+    const { data: assignedData, error: assignedError } = await supabase
+      .from("restaurant_regional_managers")
+      .select("regional_manager_user_id")
+      .eq("restaurant_id", r.id);
+
+    if (assignedError) {
+      setMessage("Hata: Atanmış bölge müdürleri alınamadı.");
+      // Hata olsa bile formu göstermeye devam et
+    }
+
+    const assignedManagerIds = assignedData?.map((m) => m.regional_manager_user_id) ?? [];
+
     setForm({
       name: r.name,
       city: r.city ?? "",
@@ -154,23 +147,45 @@ export default function RestoranlarPage() {
       franchise_owner_phone: r.franchise_owner_phone ?? "",
       franchise_owner_email: r.franchise_owner_email ?? "",
       invoice_address: r.invoice_address ?? "",
-      selected_regional_managers: [],
+      selected_regional_managers: assignedManagerIds,
     });
-    setMessage("");
     setShowModal(true);
   };
 
   // Fetch data when user is ready; stop loading if auth resolves without tenant
   useEffect(() => {
-    if (!userLoading) {
-      if (user?.tenant_id) {
-        fetchRestaurants();
-        fetchBolgeMudurleri();
-      } else {
+    const fetchInitialData = async () => {
+      if (!user?.tenant_id) {
         setLoading(false);
+        return;
       }
+      setLoading(true);
+
+      // Restoranları çek
+      const { data: restData, error: restError } = await supabase
+        .from("restaurants")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (restError) setMessage("Hata: " + restError.message);
+      else if (restData) setRestaurants(restData);
+
+      // Bölge müdürlerini çek
+      const { data: bmData, error: bmError } = await supabase
+        .from("users")
+        .select("id, full_name")
+        .eq("role", "bolge_muduru")
+        .eq("tenant_id", user.tenant_id);
+      if (bmError) console.error("Bölge müdürleri alınamadı:", bmError);
+      else if (bmData) setBolgeMudurleri(bmData);
+
+      setLoading(false);
+    };
+
+    if (!userLoading) {
+      fetchInitialData();
     }
-  }, [user, userLoading]);
+    setSelectedRestaurants([]);
+  }, [user, userLoading, supabase]);
 
   const handleFormChange = (field: keyof RestaurantForm, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -214,16 +229,67 @@ export default function RestoranlarPage() {
       setMessage("Hata: " + result.error);
     } else {
       setMessage(editRestaurant ? "Restoran güncellendi ✅" : "Restoran eklendi ✅");
-      fetchRestaurants();
+      // Listeyi yeniden çek
+      const { data, error } = await supabase
+        .from("restaurants")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setMessage("Hata: Liste yenilenemedi. " + error.message);
+      } else if (data) {
+        setRestaurants(data);
+      }
     }
     setSaving(false);
     setShowModal(false);
+  };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedRestaurants(filteredRestaurants.map((r) => r.id));
+    } else {
+      setSelectedRestaurants([]);
+    }
+  };
+
+  const handleSelectOne = (id: string) => {
+    setSelectedRestaurants((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedRestaurants.length === 0) return;
+
+    const resultConfirm = await showDeleteConfirm(selectedRestaurants.length, "restoranı");
+    if (!resultConfirm.isConfirmed) return;
+
+    const result = await deleteRestaurants(selectedRestaurants);
+    if (result.error) {
+      setMessage(`Hata: ${result.error}`);
+    } else {
+      setMessage(`${selectedRestaurants.length} restoran başarıyla silindi ✅`);
+      // Listeyi yeniden çekmek için fetchInitialData'nın mantığını burada tekrar kullanıyoruz.
+      const { data, error } = await supabase.from("restaurants").select("*").order("created_at", { ascending: false });
+      if (error) setMessage("Hata: Liste yenilenemedi. " + error.message);
+      else if (data) setRestaurants(data);
+    }
   };
 
   const formatScore = (val: number | null | undefined) => {
     if (val === null || val === undefined) return "—";
     return val.toFixed(1);
   };
+
+  const filteredRestaurants = useMemo(() => {
+    if (!searchTerm) {
+      return restaurants;
+    }
+    return restaurants.filter((r) =>
+      r.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [restaurants, searchTerm]);
 
   if (loading) {
     return (
@@ -238,11 +304,38 @@ export default function RestoranlarPage() {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="h4 mb-0">Restoranlar</h2>
-        <button className="btn btn-primary d-flex align-items-center gap-2" onClick={openAdd}>
-          <FiPlus size={16} />
-          Restoran Ekle
-        </button>
+        <h2 className="h4 mb-0 flex-shrink-0">
+          Restoranlar (
+          {searchTerm
+            ? `${filteredRestaurants.length} / ${restaurants.length}`
+            : restaurants.length}
+          )
+        </h2>
+        <div className="d-flex gap-2 w-100 ms-4" style={{ maxWidth: "500px" }}>
+          <div className="input-group flex-grow-1">
+            <span className="input-group-text bg-white border-end-0">
+              <FiSearch />
+            </span>
+            <input
+              type="text"
+              className="form-control border-start-0"
+              placeholder="Restoranlarda ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="d-flex gap-2 flex-shrink-0">
+            {selectedRestaurants.length > 0 && (
+              <button className="btn btn-danger d-flex align-items-center gap-2" onClick={handleDeleteSelected}>
+                <FiTrash2 size={16} /> Sil ({selectedRestaurants.length})
+              </button>
+            )}
+            <button className="btn btn-primary d-flex align-items-center gap-2" onClick={openAdd}>
+              <FiPlus size={16} />
+              Restoran Ekle
+            </button>
+          </div>
+        </div>
       </div>
 
       {message && (
@@ -256,6 +349,14 @@ export default function RestoranlarPage() {
           <table className="table table-hover align-middle mb-0">
             <thead className="table-light small text-muted">
               <tr>
+                <th style={{ width: 40 }}>
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    onChange={handleSelectAll}
+                    checked={restaurants.length > 0 && selectedRestaurants.length === restaurants.length}
+                  />
+                </th>
                 <th>Restoran</th>
                 <th>Lokasyon</th>
                 <th>İletişim</th>
@@ -265,15 +366,25 @@ export default function RestoranlarPage() {
               </tr>
             </thead>
             <tbody>
-              {restaurants.length === 0 ? (
+              {filteredRestaurants.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center text-muted py-5">
-                    Henüz restoran eklenmemiş. "Restoran Ekle" butonuna tıklayın.
+                  <td colSpan={7} className="text-center text-muted py-5">
+                    {searchTerm
+                      ? "Aramanızla eşleşen restoran bulunamadı."
+                      : 'Henüz restoran eklenmemiş. "Restoran Ekle" butonuna tıklayın.'}
                   </td>
                 </tr>
               ) : (
-                restaurants.map((r) => (
+                filteredRestaurants.map((r) => (
                   <tr key={r.id}>
+                    <td>
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={selectedRestaurants.includes(r.id)}
+                        onChange={() => handleSelectOne(r.id)}
+                      />
+                    </td>
                     <td>
                       <Link href={`/firma-admin/restoranlar/${r.id}`} className="text-decoration-none fw-semibold text-dark">
                         <div className="d-flex align-items-center gap-2">

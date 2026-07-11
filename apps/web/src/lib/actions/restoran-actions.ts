@@ -35,40 +35,29 @@ export async function createRestoran(
     return { error: "Oturum bulunamadı. Lütfen tekrar giriş yapın." };
   }
 
-  const { data: userData } = await supabase
+  const { data: userData, error: userError } = await supabase
     .from("users")
     .select("tenant_id")
     .eq("id", user.id)
     .single();
 
-  const tenantId = userData?.tenant_id;
-  // UUID format kontrolü — string "undefined" varsa yakala
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  if (!tenantId || !uuidRegex.test(String(tenantId))) {
-    return { error: `Tenant bilgisi geçersiz (${JSON.stringify(tenantId)}). Lütfen tekrar giriş yapın.` };
+  if (userError || !userData?.tenant_id) {
+    return { error: "Kullanıcıya ait firma bilgisi alınamadı." };
   }
-
-  // 2. Restoranı ekle (RLS kontrolü)
-  // Sanitize: convert undefined/"undefined" to null for uuid/text fields
   const sanitized = Object.fromEntries(
     Object.entries(restoranData).map(([k, v]) => [
       k,
       v === undefined || v === "undefined" ? null : v,
     ])
   );
-  // Debug: hangi alanlarda sorun var görelim
-  const debugInfo = Object.entries(restoranData)
-    .filter(([k, v]) => v === undefined || v === "undefined" || (typeof v === "string" && v.length > 0 && k !== "name" && k !== "status"))
-    .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
-    .join(", ");
   const { data: newRest, error: insertError } = await supabase
     .from("restaurants")
-    .insert([{ ...sanitized, tenant_id: tenantId }])
+    .insert([{ ...sanitized, tenant_id: userData.tenant_id }])
     .select("id")
     .single();
 
   if (insertError) {
-    return { error: `Restoran eklenemedi: ${insertError.message} | debug: ${debugInfo} | tenantId=${JSON.stringify(tenantId)}` };
+    return { error: `Restoran eklenemedi: ${insertError.message}` };
   }
 
   // 3. Bölge müdürü atamalarını ekle
@@ -99,27 +88,20 @@ export async function updateRestoran(
   selectedRegionalManagers: string[]
 ) {
   const supabase = await createClient();
-
   // 1. Restoranı güncelle (RLS kontrolü)
-  // Sanitize: convert undefined/"undefined" to null
   const sanitized = Object.fromEntries(
     Object.entries(restoranData).map(([k, v]) => [
       k,
       v === undefined || v === "undefined" ? null : v,
     ])
   );
-  // Debug: hangi alanlarda sorun var görelim
-  const debugInfo = Object.entries(restoranData)
-    .filter(([k, v]) => v === undefined || v === "undefined" || (typeof v === "string" && v.length > 0 && k !== "name" && k !== "status"))
-    .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
-    .join(", ");
   const { error: updateError } = await supabase
     .from("restaurants")
     .update(sanitized)
     .eq("id", id);
 
   if (updateError) {
-    return { error: `Restoran güncellenemedi: ${updateError.message} | debug: ${debugInfo}` };
+    return { error: `Restoran güncellenemedi: ${updateError.message}` };
   }
 
   // 2. Bölge müdürü atamalarını yenile
@@ -144,6 +126,21 @@ export async function updateRestoran(
     if (rrmError) {
       return { error: `Bölge müdürü atanamadı: ${rrmError.message}` };
     }
+  }
+
+  return { success: true };
+}
+
+export async function deleteRestaurants(ids: string[]) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("restaurants")
+    .delete()
+    .in("id", ids);
+
+  if (error) {
+    return { error: `Restoranlar silinemedi: ${error.message}` };
   }
 
   return { success: true };

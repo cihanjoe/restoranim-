@@ -8,7 +8,7 @@ interface UserData {
   full_name: string;
   role: string;
   email: string;
-  avatar_url?: string | null;
+  photo_url?: string | null;
   tenant_id?: string | null;
 }
 
@@ -28,7 +28,7 @@ export function useUser() {
 
       const { data } = await supabase
         .from("users")
-        .select("id, full_name, role, email, avatar_url, tenant_id")
+        .select("id, full_name, role, email, photo_url, tenant_id")
         .eq("id", session.user.id)
         .single();
 

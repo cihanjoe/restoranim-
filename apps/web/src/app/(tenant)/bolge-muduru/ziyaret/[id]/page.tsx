@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createActionFromVisit } from "@/lib/actions/visit-actions";
 
 interface Section {
   id: string;
@@ -363,9 +364,7 @@ export default function ZiyaretWizardPage({ params }: { params: { id: string } }
     return answerIdMap;
   };
 
-  const createActionsFromAnswers = async (answerIdMap: Record<string, string>) => {
-    if (!visit) return;
-
+  const createActionsFromAnswers = async (answerIdMap: Record<string, string>, visit: Visit) => {
     // Tüm soruları düz listeye çevir
     const allQuestions: Record<string, Question> = {};
     sections.forEach((s) => {
@@ -381,22 +380,14 @@ export default function ZiyaretWizardPage({ params }: { params: { id: string } }
 
     if (actionEntries.length === 0) return;
 
-    // Mevcut aksiyonları temizle (bu ziyaretten oluşturulanlar)
-    const existingAnswerIds = Object.values(answerIdMap);
-    if (existingAnswerIds.length > 0) {
-      await supabase
-        .from("actions")
-        .delete()
-        .in("source_visit_answer_id", existingAnswerIds);
-    }
-
     // Her tikli cevap için aksiyon oluştur
-    for (const [questionId, ans] of actionEntries) {
+    for (const [questionId, answerId] of Object.entries(answerIdMap)) {
+      const ans = answers[questionId];
+      if (!ans?.add_to_action) continue;
+
       const question = allQuestions[questionId];
-      const answerId = answerIdMap[questionId];
       if (!question || !answerId) continue;
 
-      // Başlık: soru metni, not varsa ekle
       const title = ans.notes
         ? `${question.question_text} — ${ans.notes}`
         : question.question_text;
@@ -405,19 +396,15 @@ export default function ZiyaretWizardPage({ params }: { params: { id: string } }
       const dueDate = new Date(visit.visit_date);
       dueDate.setDate(dueDate.getDate() + 7);
 
-      const { error } = await supabase.from("actions").insert({
-        tenant_id: visit.tenant_id,
+      const { error } = await createActionFromVisit({
         restaurant_id: visit.restaurant_id,
         source_visit_answer_id: answerId,
         title,
         due_date: dueDate.toISOString().split("T")[0],
-        status: "open",
-        opened_at: new Date().toISOString(),
-        repeat_count: 1,
       });
 
       if (error) {
-        console.error("Aksiyon oluşturulamadı:", error.message);
+        console.error("Aksiyon oluşturulamadı:", error);
       }
     }
   };
@@ -464,7 +451,11 @@ export default function ZiyaretWizardPage({ params }: { params: { id: string } }
 
     // 2. Aksiyonları oluştur
     setUploadProgress("Aksiyonlar oluşturuluyor...");
-    await createActionsFromAnswers(answerIdMap);
+    if (visit) {
+      await createActionsFromAnswers(answerIdMap, visit);
+    } else {
+      console.error("Ziyaret bilgisi eksik, aksiyonlar oluşturulamadı.");
+    }
 
     // 3. Ziyaret durumunu güncelle
     setUploadProgress("Ziyaret tamamlanıyor...");
