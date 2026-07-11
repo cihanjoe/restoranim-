@@ -131,17 +131,22 @@ export async function updateBolgeMudur(
 
 export async function deleteBolgeMudurleri(ids: string[]) {
   const supabaseAdmin = await createAdminClient();
+  const failedIds: string[] = [];
 
-  // Auth kullanıcılarını sil
   for (const id of ids) {
     const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
     if (error) {
       // Not: users tablosundaki silme işlemi (cascade) bunu otomatik halledebilir.
       // Eğer cascade yoksa, buradaki hataya rağmen devam edip db'den silmeyi deneyebiliriz.
       console.warn(`Auth kullanıcısı silinemedi (ID: ${id}): ${error.message}`);
+      failedIds.push(id);
     }
   }
 
   revalidatePath("/firma-admin/bolge-mudurleri");
+
+  if (failedIds.length > 0) {
+    return { success: false, error: `${failedIds.length} kullanıcı silinemedi.` };
+  }
   return { success: true };
 }
