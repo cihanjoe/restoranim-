@@ -103,7 +103,7 @@ bileşeni oluşturup her rol onu kullansın.
   - `bolge_muduru`: Genel Bakış, Restoranlarım, Ziyaretlerim, Aksiyonlar
   - `restoran_muduru`: Genel Bakış, Personelim, Aksiyonlarım
 
-**Durum:** [ ] Yapılmadı
+**Durum:** [x] Tamamlandı — ortak layout (AppSidebar + AppHeader + DashboardLayout) tüm roller için hazır, build başarılı
 
 ---
 
@@ -122,7 +122,7 @@ bileşeni oluşturup her rol onu kullansın.
 - Supabase sorgusu: `restaurants` tablosu, `restaurant_regional_managers`
   ile JOIN, `regional_manager_user_id = giriş yapan kullanıcı` filtresi
 
-**Durum:** [ ] Yapılmadı
+**Durum:** [x] Tamamlandı — `/bolge-muduru/genel-bakis` sayfası oluşturuldu; Supabase canlı sorgular (restaurant_regional_managers → restaurants → odz_visits, actions) ile çalışıyor; özet kartlar (StatCard), restoran tablosu, boş durum mesajı mevcut. Build başarılı.
 
 ---
 
@@ -139,7 +139,7 @@ bileşeni oluşturup her rol onu kullansın.
 - Açık aksiyon listesi (özet)
 - Son ODZ ziyareti bilgisi
 
-**Durum:** [ ] Yapılmadı
+**Durum:** [x] Tamamlandı — `/restoran-muduru/genel-bakis` sayfası oluşturuldu; restoran bilgisi (restaurants tablosundan), personel sayısı, açık aksiyon listesi (actions), son ODZ ziyareti (odz_visits) canlı Supabase sorguları ile; sidebar güncellendi, eski sayfadan redirect eklendi. Build başarılı.
 
 ---
 
@@ -154,7 +154,7 @@ bileşeni oluşturup her rol onu kullansın.
 
 **Hedef:** `apps/web/src/app/(tenant)/super-admin/firmalar/page.tsx` (üzerine yazılacak)
 
-**Durum:** [ ] Yapılmadı
+**Durum:** [x] Tamamlandı — `/super-admin/firmalar` sayfası Hope UI bootstrap-table.js stiliyle yeniden yazıldı; Supabase canlı veri (tenants tablosu), Ekle/Düzenle/Sil CRUD işlemleri, modal form, badge'ler, initial avatar'lar. Build başarılı.
 
 ---
 
@@ -170,7 +170,7 @@ bileşeni oluşturup her rol onu kullansın.
 **Supabase bağlantısı:** `staff_members` + `staff_field_values` +
 `staff_field_definitions` tabloları (bkz. docs/DATABASE_SCHEMA.md bölüm 3)
 
-**Durum:** [ ] Yapılmadı
+**Durum:** [x] Tamamlandı — `/restoran-muduru/personel` sayfası oluşturuldu; Supabase canlı sorgular (restaurants → staff_members) ile CRUD işlemleri çalışıyor; Hope UI user-list.js tablo stili + modal form ile Ekle/Düzenle/Sil mevcut. Sidebar menüsü zaten vardı. Build başarılı.
 
 ---
 
@@ -179,26 +179,27 @@ bileşeni oluşturup her rol onu kullansın.
 **Kaynak dosyalar ve karşılıkları:**
 | Kaynak | Hedef | Kullanım amacı |
 |---|---|---|
-| `views/dashboard/auth/recoverpw.js` | `apps/web/src/app/(tenant)/sifremi-unuttum/page.tsx` | Şifremi unuttum akışı |
-| `views/dashboard/auth/sign-up.js` | `apps/web/src/app/(tenant)/davet-kabul/page.tsx` | Bölge müdürü/personel daveti ile ilk şifre belirleme |
+| `views/dashboard/auth/recoverpw.js` | `apps/web/src/app/sifremi-unuttum/page.tsx` | Şifremi unuttum akışı |
+| `views/dashboard/auth/sign-up.js` | `apps/web/src/app/davet-kabul/page.tsx` | Bölge müdürü/personel daveti ile ilk şifre belirleme |
 
-**Durum:** [ ] Yapılmadı
+**Durum:** [x] Tamamlandı — `/sifremi-unuttum` ve `/davet-kabul` sayfaları oluşturuldu. Her ikisi de Hope UI auth stiliyle (split layout, gradient sol panel, logo, form kartı). Supabase Auth entegrasyonu: `resetPasswordForEmail` ve `updateUser`. Davet-kabul sayfası hem şifre sıfırlama (recovery) hem de davet akışını (mevcut session) destekliyor, loading/error/success durumları var. Build başarılı.
 
 ---
 
-## Görev 6 — ODZ Ziyaret Formu (Form Wizard) [İLERİ FAZ]
+## Görev 6 — ODZ Ziyaret Formu (Form Wizard)
 
 **Kaynak dosyalar:**
-- `views/dashboard/from/form-wizard.js` (çok adımlı form yapısı — ODZ'nin
-  bölüm bölüm ilerleyen yapısına birebir uyuyor)
+- `views/dashboard/from/form-wizard.js` (çok adımlı form yapısı)
 
-**Hedef:** `apps/web/src/app/(tenant)/bolge-muduru/ziyaret/[id]/page.tsx`
+**Hedefler:**
+- `apps/web/src/app/(tenant)/bolge-muduru/ziyaretlerim/page.tsx` — ziyaret listesi + yeni ziyaret başlatma
+- `apps/web/src/app/(tenant)/bolge-muduru/ziyaret/[id]/page.tsx` — form wizard
 
-**Not:** Bu görev, `odz_form_sections`/`odz_form_questions` tabloları
-doldurulmadan (yani form builder çalışmadan) tam test edilemez — bu
-yüzden Görev 0-5'ten SONRA yapılmalı.
+**İçerik:**
+- Ziyaret listesi: Supabase `odz_visits` + `restaurants` JOIN; durum badge'leri (draft/completed/notified); "Yeni Ziyaret" butonu → modal ile restoran seç → hemen draft oluştur → wizard'a yönlendir
+- Form wizard: Hope UI form-wizard.js step indicator stili (adım butonları); dinamik olarak `odz_form_sections` ve `odz_form_questions` tablolarından soruları çeker; 3 soru tipi (choice_3 butonlar, text textarea, number input); her soruda not alanı ve "Aksiyona Ekle" checkbox'ı; taslak kaydetme (delete+insert); zorunlu soru validasyonu; tamamlama sonrası status=completed.
 
-**Durum:** [ ] Yapılmadı
+**Durum:** [x] Tamamlandı — ziyaret listesi + form wizard. Dinamik soru yapısı (`odz_form_sections` / `odz_form_questions` db'den okuyor), 3 soru tipi (choice_3, text, number), taslak kaydetme, zorunlu soru kontrolü, step indicator, success ekranı. `npm run build` ile 15 route derlendi.
 
 ---
 
@@ -209,10 +210,15 @@ yüzden Görev 0-5'ten SONRA yapılmalı.
 
 **Hedef:** `apps/web/src/app/(tenant)/bolge-muduru/aksiyonlar/page.tsx`
 
-**Supabase bağlantısı:** `actions` tablosu, `status` koluna göre
-sütunlara dağıtılacak (open / pending_approval / approved)
+**İçerik:**
+- 4 sütunlu Kanban: Açık (open), Onay Bekleyen (pending_approval), Onaylanan (approved), Reddedilen (rejected)
+- Aksiyon kartları: başlık, restoran adı, termin tarihi, tekrar sayısı
+- Detay modal: başlık, restoran, termin, oluşturma tarihi, durum dropdown (anlık güncelleme), silme butonu
+- Supabase: `restaurant_regional_managers` üzerinden bölge müdürüne atanan restoranların aksiyonlarını çeker; durum güncelleme, silme CRUD
 
-**Durum:** [ ] Yapılmadı
+**Supabase bağlantısı:** `actions` tablosu, `status` kolonuna göre sütunlara dağıtılır
+
+**Durum:** [x] Tamamlandı — 4 sütunlu Kanban panosu, aksiyon kartları, detay modal ile durum güncelleme ve silme. Bölge müdürüne atanan restoranların aksiyonları (`restaurant_regional_managers` → `actions`). 16 route derlendi.
 
 ---
 
@@ -221,12 +227,117 @@ sütunlara dağıtılacak (open / pending_approval / approved)
 **Kaynak dosyalar:**
 - `views/dashboard/special-pages/timeline.js`
 
-**Hedef:** Restoran detay sayfasının bir sekmesi/bölümü olarak kullanılacak
-(tam yol Görev 1/2 tamamlanınca netleşecek)
+**Hedef:**
+- `apps/web/src/app/(tenant)/restoran-muduru/ziyaret-gecmisi/page.tsx`
 
-**Durum:** [ ] Yapılmadı
+**İçerik:**
+- Hope UI timeline stili: aylara göre gruplanmış, ay başlıkları pill badge, dikey çizgi ve nokta işaretçileri
+- Her ziyaret: ziyaretçi adı (users.full_name), tarih/saat, durum badge'i (Taslak/Tamamlandı/Bildirildi), tamamlanma tarihi
+- Supabase: `restaurants.manager_user_id` → restoran ID → `odz_visits` (users JOIN, odz_visit_answers COUNT)
+- Sağ sütunda özet kartı: Toplam/Tamamlanan/Taslak/Bildirilen sayıları
+- Sidebar restoran_muduru menüsüne "Ziyaret Geçmişi" eklendi
+
+**Durum:** [x] Tamamlandı — 17 route derlendi. Aylık gruplanmış Hope UI timeline; Supabase canlı sorgu (restaurants → odz_visits → users); özet kartı. Sidebar menüsü güncellendi.
 
 ---
+
+---
+
+## Görev 9 — Hesabım Sayfası (Kullanıcı Profili)
+
+**Kaynak dosyalar:**
+- `views/dashboard/special-pages/profile.js`
+
+**Hedef:**
+- `apps/web/src/app/(tenant)/hesabim/page.tsx`
+
+**İçerik:**
+- 3 sekmeli profil sayfası (Profil / Aktivite / Güvenlik)
+- Profil sekmesi: Ad Soyad, E-posta (salt okunur), Telefon, Rol (salt okunur), Kayıt Tarihi — düzenleme formu Supabase `users` tablosuna UPDATE yazar
+- Aktivite sekmesi: timeline başlangıcı (şu an sadece hesap oluşturma kaydı)
+- Güvenlik sekmesi: şifre değiştirme (Supabase Auth `updateUser`)
+- Hope UI stil uyumlu tasarım, profil fotoğrafı yerine Initials avatar
+
+**Supabase bağlantısı:**
+- `users` tablosu: SELECT (profil okuma) + UPDATE (isim/telefon güncelleme)
+- `auth.updateUser()`: şifre değiştirme
+
+**Durum:** [x] Tamamlandı — 17 route derlendi. Profil düzenleme (users UPDATE), şifre değiştirme (auth.updateUser), 3 sekme (Tab.Container), Hope UI tatlı stil. Build başarılı.
+
+---
+
+## Görev 10 — Firma Admin Restoran Yönetimi
+
+**Amaç:** Firma Admin'in kendi firmasına ait restoranları listelemesi, eklemesi, görüntülemesi ve düzenlemesi.
+
+**Hedef sayfalar:**
+- `apps/web/src/app/(tenant)/firma-admin/restoranlar/page.tsx` — Restoran listesi (tablo) + "Restoran Ekle" butonu → modal form
+- `apps/web/src/app/(tenant)/firma-admin/restoranlar/[id]/page.tsx` — Restoran detay sayfası (tüm bilgiler kart halinde, "Düzenle" butonu)
+- `apps/web/src/app/(tenant)/firma-admin/restoranlar/[id]/duzenle/page.tsx` — Restoran düzenleme sayfası (detay sayfasındaki "Düzenle" butonundan gidilir)
+
+**Form alanları (modal/ekleme + düzenleme):**
+- Temel: Restoran Adı, İl (select → 81 il), İlçe, Açılış Tarihi, Tür (Merkeze Bağlı / Franchise select), Adres, Durum
+- İletişim: Telefon, E-posta, Fatura Adresi
+- Bölge Müdürü Atama: `users` tablosundaki `bolge_muduru` rolündeki aktif kullanıcılar checkbox listesi (çoklu seçim)
+- Restoran Müdürü: metin alanı
+- Platform Puanları (0-5): Google Puanı, Yemek Sepeti Puanı, Getir Puanı, Trendyol Yemek Puanı
+- Franchise bilgileri (sadece Franchise seçiliyse gösterilir): Restoran Sahibi, Sahip İletişim No, Sahip E-posta
+
+**Supabase bağlantısı:**
+- `restaurants` tablosu: SELECT/INSERT/UPDATE — yeni kolonlar: city, district, opening_date, franchise, phone, yemeksepeti_score, getir_score, trendyol_yemek_score, google_score, franchise_owner, franchise_owner_phone, franchise_owner_email, invoice_address
+- `restaurant_regional_managers` tablosu: INSERT (yeni atama) / DELETE (mevcut atamaları sil) — çoktan çoğa ilişki
+- `users` tablosu: SELECT — bölge müdürü listesi için (`role = bolge_muduru`)
+
+**Migration:** `supabase/migrations/0004_restoran_ek_kolonlar.sql` — mevcut `restaurants` tablosuna yeni kolonları ekler. Supabase SQL Editor'da elle çalıştırılmalı veya `supabase db push` ile uygulanmalı.
+
+**Durum:** [x] Tamamlandı — 3 sayfa oluşturuldu; liste + ekleme modalı + detay + düzenleme; Supabase canlı CRUD; build başarılı (19 route). Migration SQL Editor'dan elle çalıştırılmalı.
+
+---
+
+## Görev 11 — Firma Admin ODZ Form Builder
+
+**Amaç:** Firma Admin'in ODZ ziyaret formu bölümlerini ve sorularını canlı Supabase verisiyle yönetmesi.
+
+**Hedef sayfa:**
+- `apps/web/src/app/(tenant)/firma-admin/form-builder/page.tsx`
+
+**İçerik:**
+- Bölüm listeleme, ekleme, düzenleme, silme
+- Bölüm durum/sıra yönetimi (`active` / `passive`, `sort_order`)
+- Bölüm altında soru listeleme, ekleme, düzenleme, silme
+- Soru tipi: `choice_3`, `text`, `number`, `photo_only`
+- Soru ayarları: zorunlu cevap, fotoğraf zorunluluğu, sıra, durum
+- Özet kartları: toplam bölüm, aktif bölüm, toplam soru
+
+**Supabase bağlantısı:**
+- `odz_form_sections`: SELECT/INSERT/UPDATE/DELETE
+- `odz_form_questions`: SELECT/INSERT/UPDATE/DELETE
+- Tenant filtresi `useUser().tenant_id` ile uygulanır; sorular bölüm üzerinden tenant'a bağlanır.
+
+**Durum:** [x] Tamamlandı — placeholder sayfa gerçek CRUD ekranına çevrildi. Değişen dosyada Biome check başarılı, `npm run build` başarılı (29 route).
+
+---
+
+## Görev 12 — Restoran Müdürü Aksiyonlarım Route Eksikliği
+
+**Amaç:** Sidebar'da var olan `/restoran-muduru/aksiyonlarim` linkinin 404'e düşmesini engellemek ve restoran müdürünün kendi aksiyonlarını yönetebilmesi.
+
+**Hedef sayfa:**
+- `apps/web/src/app/(tenant)/restoran-muduru/aksiyonlarim/page.tsx`
+
+**İçerik:**
+- Restoran müdürünün `restaurants.manager_user_id` ile bağlı olduğu restoranları bulma
+- Bu restoranlara ait `actions` kayıtlarını canlı listeleme
+- Durum özet kartları: açık, onay bekleyen, reddedilen, onaylanan
+- Açık/reddedilen aksiyonu açıklama ile `pending_approval` durumuna gönderme
+- Gönderim sırasında `action_updates` tablosuna ilerleme kaydı oluşturma
+
+**Supabase bağlantısı:**
+- `restaurants`: SELECT (`manager_user_id = auth.uid()`)
+- `actions`: SELECT/UPDATE
+- `action_updates`: INSERT
+
+**Durum:** [x] Tamamlandı — route eklendi, sidebar linki artık çalışıyor. Değişen dosyada Biome check başarılı, `npm run build` başarılı (29 route).
 
 ## Referans — Henüz Göreve Bağlanmamış Diğer Kaynak Dosyalar
 
@@ -235,6 +346,5 @@ Bunlar ileride ihtiyaç oldukça yukarıdaki gibi görev haline getirilecek:
 - `views/dashboard/from/form-element.js`, `form-validation.js` — genel form ihtiyaçlarında
 - `views/dashboard/special-pages/calender.js` — ODZ ziyaret takvimi için (faz 5+)
 - `views/dashboard/special-pages/billing.js` — Süper Admin abonelik ekranı için (faz 8)
-- `views/dashboard/special-pages/profile.js` — genel kullanıcı profil sayfası
 - `components/partials/dashboard/HeaderStyle/header-style-1.js` ... `4.js` — alternatif header stilleri (şimdilik `header.js` kullanılıyor, değişmeyecek)
 - `components/partials/dashboard/SidebarStyle/sidebar-style-1.js`, `sidebar-small.js` — alternatif sidebar stilleri (şimdilik `sidebar.js` kullanılıyor)

@@ -70,6 +70,11 @@ create table restaurants (
   assistant_manager_name text,
   manager_user_id uuid references users(id),
   total_staff_count int default 0,
+  -- Scores for various platforms (0-100 scale)
+  google_score int default 0,
+  yemeksepeti_score int default 0,
+  getir_score int default 0,
+  trendyol_yemek_score int default 0,
   status text not null default 'active' check (status in ('active','passive')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -79,6 +84,8 @@ create table restaurant_regional_managers (
   id uuid primary key default gen_random_uuid(),
   restaurant_id uuid not null references restaurants(id) on delete cascade,
   regional_manager_user_id uuid not null references users(id) on delete cascade,
+  -- Store the name of the regional manager for quick display in person views
+  regional_manager_name text,
   created_at timestamptz not null default now(),
   unique (restaurant_id, regional_manager_user_id)
 );
